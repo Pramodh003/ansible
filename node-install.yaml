@@ -1,0 +1,28 @@
+- name: Install the packages
+  hosts: all
+  become: yes
+  tasks:
+    - name: Remove libnode72 if installed
+      apt:
+        name: libnode72
+        state: absent
+        update_cache: yes
+      ignore_errors: yes
+
+    - name: Installing following list of all the packages
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: no
+      loop:
+        - curl
+        - nginx
+
+    - name: Install nodejs via curl
+      shell: curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+
+    - name: Install node18
+      apt:
+        name: nodejs
+        state: present
+        update_cache: no
