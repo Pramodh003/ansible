@@ -1,0 +1,36 @@
+- name: Install jenkins in slave2
+  become: yes
+  hosts: slave2
+  tasks:
+   - name: Ensure the apt key is installed
+     apt_key:
+       url: "https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key"
+       state: present
+   - name: Add jenkins repository
+     apt_repository:
+       repo: "deb https://pkg.jenkins.io/debian-stable binary/"
+       state: present
+   - name: run apt update
+     apt:
+       name: "{{ item }}"
+       state: latest
+       update_cache: yes
+     with_items:
+      - "*"
+      - fontconfig
+      - openjdk-17-jre
+      - jenkins
+   - name: reload the changes
+     ansible.builtin.systemd_service:
+       daemon_reload: true
+   - name: Jenkins start
+     ansible.builtin.systemd_service:
+       state: started
+       name: jenkins
+   - name: Get the initial password
+     shell: "cat /var/lib/jenkins/secrets/initialAdminPassword"
+     register: results
+   - name: Display password
+     debug:
+      var: results
+...
