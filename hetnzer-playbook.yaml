@@ -1,11 +1,11 @@
 - name: Get the secrets from HashiCorp Vault
   hosts: localhost
   tasks:
-    - name: Read the latest version of a kv2 secrets
+    - name: Read the latest version of kv2 secrets
       community.hashi_vault.vault_kv2_get:
         url: https://vault.sirpi.in
         engine_mount_point: kv
-        path: devops/heztner
+        path: devops/hetzner
         auth_method: token
         token: "{{ lookup('env', 'VAULT_TOKEN') }}"
       register: token_response
@@ -17,6 +17,27 @@
           - "{{ token_response['secret']['r3.6.3-project-token'] }}"
 
     - name: Remove a firewall from a list of servers
+      hetzner.hcloud.firewall_resource:
+        api_token:  "{{ token_response['secret']['r3.6.3-project-token'] }}"
+        firewall: workspace
+        servers:
+         - r3.6.3
+        state: absent
+
+    - name: Execute certbot command to generate SSL certificate
+      ansible.builtin.shell: |
+        sudo certbot --nginx -d rserver.sirpify.com
+      become: yes
+      become_method: sudo
+      args:
+        chdir: /  # Change directory if necessary
+      register: certbot_output
+
+    - name: Display certbot output
+      ansible.builtin.debug:
+        msg: "{{ certbot_output.stdout }}"
+
+    - name: Reattach the firewall to the list of servers
       hetzner.hcloud.firewall_resource:
         api_token:  "{{ token_response['secret']['r3.6.3-project-token'] }}"
         firewall: workspace
