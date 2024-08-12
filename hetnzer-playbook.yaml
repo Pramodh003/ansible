@@ -16,10 +16,10 @@
           - "Secret: {{ token_response['secret']['r3.6.3-project-token'] }}"
           - "{{ token_response['secret']['r3.6.3-project-token'] }}"
 
-    # - name: Remove a firewall from a list of servers
-    #   hetzner.hcloud.firewall_resource:
-    #     api_token:  "{{ token_response['secret']['r3.6.3-project-token'] }}"
-    #     firewall: workspace
-    #     servers:
-    #      - r3.6.3
-    #     state: present
+    - name: Remove a firewall from a list of servers
+      hetzner.hcloud.firewall_resource:
+        api_token:  "{{ token_response['secret']['r3.6.3-project-token'] }}"
+        firewall: workspace
+        servers:
+         - r3.6.3
+        state: present
